@@ -374,6 +374,7 @@ def main():
                     valid_ips)]
         except (KeyboardInterrupt, Exception):
             os.system('clear')
+            sys.exit()
     # Показывает все пароли
     elif args.command == 'show':
         db_data_get_all()
@@ -390,3 +391,4 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         os.system('clear')
+        sys.exit()

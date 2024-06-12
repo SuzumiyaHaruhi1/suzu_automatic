@@ -24,7 +24,7 @@ go install github.com/sensepost/gowitness@latest
 git clone https://github.com/SuzumiyaHaruhi1/suzu_automatic.git
 ```
 ```bash
-cd suzu_automatic; chmod +x seth.sh
+sudo chmod 755 suzu_automatic; cd suzu_automatic; chmod +x seth.sh
 ```
 ## Использование
 Скрипт поддерживает несколько команд для различных задач. При запуске некоторых модулей происходит проверка прав пользователя и если запуск производится не от root, требуется ввести пароль.

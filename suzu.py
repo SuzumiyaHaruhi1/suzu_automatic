@@ -18,6 +18,9 @@ def run_seth(command, interface=None, subnet=None, server=None, ip_address=None)
     elif command == 'remove':
         subprocess.run(['python3', 'suzu_seth.py', 'remove', ip_address])
 
+def run_kerberoasting(ip, username, credentials, domain, wordlist):
+    subprocess.run(['python3', 'suzu_kerberoasting.py', ip, '-u', username, '-c', credentials, '-d', domain, '-w', wordlist])
+
 def main():
     parser = argparse.ArgumentParser(description='Скрипт для автоматизации запуска доступных модулей')
     
@@ -47,6 +50,14 @@ def main():
 
     remove_parser = seth_subparsers.add_parser('remove', help='Удаление определенного IP-адреса')
     remove_parser.add_argument('ip', help="IP-адрес для удаления")
+
+    # Kerberoasting parser
+    parser_kerberoasting = subparsers.add_parser('kerberoasting', help='Запуск модуля KERBEROASTING')
+    parser_kerberoasting.add_argument('ip', help="IP-адрес контроллера домена")
+    parser_kerberoasting.add_argument('-u', '--username', required=True, help="Имя пользователя")
+    parser_kerberoasting.add_argument('-c', '--credentials', required=True, help="Пароль или NT-hash")
+    parser_kerberoasting.add_argument('-d', '--domain', required=True, help="Домен")
+    parser_kerberoasting.add_argument('-w', '--wordlist', default='/usr/share/wordlists/rockyou.txt', help="Путь к файлу со словарем")
 
     args = parser.parse_args()
 
@@ -81,7 +92,11 @@ def main():
                 remove_parser.print_help(sys.stderr)
             else:
                 run_seth(args.command, ip_address=args.ip)
+    elif args.script == 'kerberoasting':
+        if not args.ip or not args.username or not args.credentials or not args.domain:
+            parser_kerberoasting.print_help(sys.stderr)
+        else:
+            run_kerberoasting(args.ip, args.username, args.credentials, args.domain, args.wordlist)
 
 if __name__ == '__main__':
     main()
-

@@ -3,6 +3,7 @@
 - [x]  [SETH](https://github.com/SySS-Research/Seth) для проведения MITM атаки с перехватом аутентификации пользователя на удаленном RDP-сервере.
 - [x]  KYOCERA для проверки IP-адресов из заданной подсети на наличие открытого порта 9091 и извлечения аутентификационных данных из адресной книги.
 - [x]  [GOWITNESS](https://github.com/sensepost/gowitness?tab=readme-ov-file) для проверки IP-адресов из заданной подсети на наличие открытых портов 80, 443, 8000, 8080 и создания скриншотов.
+- [ ]  Kerberoasting для проведения атаки Kerberoasting, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования)
 ## Зависимости
 Перед запуском необходимо убедиться в наличии следующих библиотек:
 - `psutil`
@@ -15,9 +16,12 @@
 ```python
 pip install psutil scapy tabulate colorama lxml
 ```
-Также необходимо установить дополнительные модули:
+Также необходимо установить дополнительные модули, если они отсутствуют:
 ```bash
 go install github.com/sensepost/gowitness@latest
+```
+```bash
+pip install impacket
 ```
 ## Установка
 ```bash
@@ -56,6 +60,10 @@ python3 suzu.py kyocera -i <interface> -s <subnet>
 ### gowitness
 ```python
 python3 suzu.py gowitness -i <interface> -s <subnet>
+```
+### kerberoasting
+```python
+python3 suzu.py kerberoasting <dc_ip> -u <user> -c <password|nt_hash> -d <domain> [-w <wordlist]
 ```
 ## HELP меню
 ### seth
@@ -131,6 +139,24 @@ options:
                         Сетевой интерфейс
   -s SUBNET, --subnet SUBNET
                         Подсеть или одиночный IP для сканирования
+```
+### kerberoasting
+```
+usage: suzu.py kerberoasting [-h] -u USERNAME -c CREDENTIALS -d DOMAIN [-w WORDLIST] ip
+
+positional arguments:
+  ip                    IP-адрес контроллера домена
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -u USERNAME, --username USERNAME
+                        Имя пользователя
+  -c CREDENTIALS, --credentials CREDENTIALS
+                        Пароль или NT-hash
+  -d DOMAIN, --domain DOMAIN
+                        Домен
+  -w WORDLIST, --wordlist WORDLIST
+                        Путь к файлу со словарем
 ```
 ## Видео-демонстрация запуска скрипта
 ### seth

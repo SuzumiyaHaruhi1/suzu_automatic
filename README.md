@@ -168,6 +168,26 @@ optional arguments:
   -w WORDLIST, --wordlist WORDLIST
                         Путь к файлу со словарем
 ```
+### asreproasting
+```
+usage: suzu.py asreproasting [-h] -d DOMAIN [-f USERSFILE] [-u USERNAME] [-c CREDENTIALS] [-w WORDLIST] dc_ip
+
+positional arguments:
+  dc_ip                 Domain controller IP address
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DOMAIN, --domain DOMAIN
+                        Domain
+  -f USERSFILE, --usersfile USERSFILE
+                        File with users
+  -u USERNAME, --username USERNAME
+                        Username
+  -c CREDENTIALS, --credentials CREDENTIALS
+                        Password or NT-hash
+  -w WORDLIST, --wordlist WORDLIST
+                        Path to wordlist
+```
 ## Видео-демонстрация запуска скрипта
 ### seth
 https://github.com/SuzumiyaHaruhi1/suzu_seth/assets/84810190/28ed97ee-1053-4d66-8737-72dc51892b7b

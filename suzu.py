@@ -119,15 +119,15 @@ def main():
     elif args.script == 'asreproasting':
         if args.username or args.credentials:
             if args.usersfile:
-                parser_asreproasting.error("-f/--usersfile cannot be used with -u/--username or -c/--credentials")
-        elif args.usersfile:
-            if not (args.username and args.credentials):
-                parser_asreproasting.error("-u/--username and -c/--credentials must both be provided")
+                parser_asreproasting.error("-f/--usersfile нельзя использовать с -u/--username или -c/--credentials")
+            elif not (args.username and args.credentials):
+                parser_asreproasting.error("-u/--username и -c/--credentials должны быть использованы вместе")
 
         if not args.dc_ip or not args.domain:
             parser_asreproasting.print_help(sys.stderr)
         else:
             run_asreproasting(args.dc_ip, args.domain, args.usersfile, args.username, args.credentials, args.wordlist)
+
 
 if __name__ == '__main__':
     main()

@@ -3,7 +3,8 @@
 - [x]  [SETH](https://github.com/SySS-Research/Seth) для проведения MITM атаки с перехватом аутентификации пользователя на удаленном RDP-сервере.
 - [x]  KYOCERA для проверки IP-адресов из заданной подсети на наличие открытого порта 9091 и извлечения аутентификационных данных из адресной книги.
 - [x]  [GOWITNESS](https://github.com/sensepost/gowitness?tab=readme-ov-file) для проверки IP-адресов из заданной подсети на наличие открытых портов 80, 443, 8000, 8080 и создания скриншотов.
-- [ ]  Kerberoasting для проведения атаки Kerberoasting, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования)
+- [ ]  Kerberoasting для проведения атаки, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования)
+- [ ]  Asreproasting для проведения атаки, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования)
 ## Зависимости
 Перед запуском необходимо убедиться в наличии следующих библиотек:
 - `psutil`
@@ -63,7 +64,16 @@ python3 suzu.py gowitness -i <interface> -s <subnet>
 ```
 ### kerberoasting
 ```python
-python3 suzu.py kerberoasting <dc_ip> -u <user> -c <password|nt_hash> -d <domain> [-w <wordlist]
+python3 suzu.py kerberoasting <dc_ip> -u <user> -c <password|nt_hash> -d <domain> [-w <wordlist>]
+```
+### asreproasting
+#### С файлом
+```python
+python3 suzu.py asreproasting <dc_ip> -d <domain> -f <users_file> [-w <wordlist>]
+```
+#### С пользователем
+```python
+python3 suzu.py asreproasting <dc_ip> -d <domain> -u <username> -c <password|nt_hash> [-w <wordlist>]
 ```
 ## HELP меню
 ### seth

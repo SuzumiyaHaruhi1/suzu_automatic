@@ -32,51 +32,51 @@ def run_asreproasting(dc_ip, domain, usersfile=None, username=None, credentials=
     subprocess.run(args)
 
 def main():
-    parser = argparse.ArgumentParser(description='Script for automating available modules')
+    parser = argparse.ArgumentParser(description='Скрипт для автоматизации запуска различных модулей')
 
-    subparsers = parser.add_subparsers(dest='script', help='Choose script to execute')
+    subparsers = parser.add_subparsers(dest='script', help='Выбор модуля для запуска')
 
     # Kyocera parser
-    parser_kyocera = subparsers.add_parser('kyocera', help='Run KYOCERA module')
-    parser_kyocera.add_argument('-i', '--interface', required=True, help='Network interface')
-    parser_kyocera.add_argument('-s', '--subnet', required=True, help='Subnet or single IP to scan')
+    parser_kyocera = subparsers.add_parser('kyocera', help='Запуск модуля KYOCERA')
+    parser_kyocera.add_argument('-i', '--interface', required=True, help='Сетевой интерфейс')
+    parser_kyocera.add_argument('-s', '--subnet', required=True, help='Подсеть или одиночный IP-адрес для сканирования')
 
     # GoWitness parser
-    parser_gowitness = subparsers.add_parser('gowitness', help='Run GOWITNESS module')
-    parser_gowitness.add_argument('-i', '--interface', required=True, help='Network interface')
-    parser_gowitness.add_argument('-s', '--subnet', required=True, help='Subnet or single IP to scan')
+    parser_gowitness = subparsers.add_parser('gowitness', help='Запуск модуля GOWITNESS')
+    parser_gowitness.add_argument('-i', '--interface', required=True, help='Сетевой интерфейс')
+    parser_gowitness.add_argument('-s', '--subnet', required=True, help='Подсеть или одиночный IP-адрес для сканирования')
 
     # SETH parser
-    parser_seth = subparsers.add_parser('seth', help='Run SETH module')
-    seth_subparsers = parser_seth.add_subparsers(dest='command', help='Available commands')
+    parser_seth = subparsers.add_parser('seth', help='Запуск модуля SETH')
+    seth_subparsers = parser_seth.add_subparsers(dest='command', help='Доступные команды')
 
-    mitm_parser = seth_subparsers.add_parser('mitm', help='Run SETH in MITM mode')
-    mitm_parser.add_argument('-i', '--interface', required=True, help="Network interface")
-    mitm_parser.add_argument('-s', '--subnet', required=True, help="Subnet or single IP to listen on")
-    mitm_parser.add_argument('-r', '--server', required=True, help="RDP server")
+    mitm_parser = seth_subparsers.add_parser('mitm', help='Прослушивание сетевого интерфейса')
+    mitm_parser.add_argument('-i', '--interface', required=True, help="Сетевой интерфейс")
+    mitm_parser.add_argument('-s', '--subnet', required=True, help="Подсеть или одиночный IP-адрес для прослушивания")
+    mitm_parser.add_argument('-r', '--server', required=True, help="RDP сервер")
 
-    seth_subparsers.add_parser('show', help='Show all passwords')
-    seth_subparsers.add_parser('clear', help='Clear the database')
+    seth_subparsers.add_parser('show', help='Вывод всех паролей')
+    seth_subparsers.add_parser('clear', help='Очистка базы данных')
 
-    remove_parser = seth_subparsers.add_parser('remove', help='Remove specific IP address')
-    remove_parser.add_argument('ip', help="IP address to remove")
+    remove_parser = seth_subparsers.add_parser('remove', help='Удаление заданного IP-адреса')
+    remove_parser.add_argument('ip', help="IP-адрес для удаления")
 
     # Kerberoasting parser
-    parser_kerberoasting = subparsers.add_parser('kerberoasting', help='Run KERBEROASTING module')
-    parser_kerberoasting.add_argument('ip', help="Domain controller IP address")
-    parser_kerberoasting.add_argument('-u', '--username', required=True, help="Username")
-    parser_kerberoasting.add_argument('-c', '--credentials', required=True, help="Password or NT-hash")
-    parser_kerberoasting.add_argument('-d', '--domain', required=True, help="Domain")
-    parser_kerberoasting.add_argument('-w', '--wordlist', default='/usr/share/wordlists/rockyou.txt', help="Path to wordlist file")
+    parser_kerberoasting = subparsers.add_parser('kerberoasting', help='Запуск модуля KERBEROASTING')
+    parser_kerberoasting.add_argument('ip', help="IP-адрес контроллера домена")
+    parser_kerberoasting.add_argument('-u', '--username', required=True, help="Имя пользователя")
+    parser_kerberoasting.add_argument('-c', '--credentials', required=True, help="Пароль или NT-hash")
+    parser_kerberoasting.add_argument('-d', '--domain', required=True, help="Домен")
+    parser_kerberoasting.add_argument('-w', '--wordlist', default='/usr/share/wordlists/rockyou.txt', help="Путь к словарю (по умолчанию: /usr/share/wordlists/rockyou.txt")
 
     # Asreproasting parser
-    parser_asreproasting = subparsers.add_parser('asreproasting', help='Run ASREPROASTING module')
-    parser_asreproasting.add_argument('dc_ip', type=str, help="Domain controller IP address")
-    parser_asreproasting.add_argument('-d', '--domain', type=str, required=True, help="Domain")
-    parser_asreproasting.add_argument('-f', '--usersfile', type=str, help="File with users")
-    parser_asreproasting.add_argument('-u', '--username', type=str, help="Username")
-    parser_asreproasting.add_argument('-c', '--credentials', type=str, help="Password or NT-hash")
-    parser_asreproasting.add_argument('-w', '--wordlist', type=str, default="/usr/share/wordlists/rockyou.txt", help="Path to wordlist")
+    parser_asreproasting = subparsers.add_parser('asreproasting', help='Запуск модуля ASREPROASTING')
+    parser_asreproasting.add_argument('dc_ip', help="IP-адрес контроллера домена")
+    parser_asreproasting.add_argument('-d', '--domain', required=True, help="Домен")
+    parser_asreproasting.add_argument('-f', '--usersfile', help="Файл с пользователями")
+    parser_asreproasting.add_argument('-u', '--username', help="Имя пользователя")
+    parser_asreproasting.add_argument('-c', '--credentials', help="Пароль или NT-hash")
+    parser_asreproasting.add_argument('-w', '--wordlist', default="/usr/share/wordlists/rockyou.txt", help="Путь к словарю (по умолчанию: /usr/share/wordlists/rockyou.txt")
 
     args = parser.parse_args()
 

@@ -155,7 +155,7 @@ options:
 usage: suzu.py kerberoasting [-h] -u USERNAME -c CREDENTIALS -d DOMAIN [-w WORDLIST] ip
 
 positional arguments:
-  ip                    IP-адрес контроллера домена
+  dc_ip                    IP-адрес контроллера домена
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -166,27 +166,27 @@ optional arguments:
   -d DOMAIN, --domain DOMAIN
                         Домен
   -w WORDLIST, --wordlist WORDLIST
-                        Путь к файлу со словарем
+                        Путь к словарю (по умолчанию /usr/share/wordlists/rockyou.txt)
 ```
 ### asreproasting
 ```
 usage: suzu.py asreproasting [-h] -d DOMAIN [-f USERSFILE] [-u USERNAME] [-c CREDENTIALS] [-w WORDLIST] dc_ip
 
 positional arguments:
-  dc_ip                 Domain controller IP address
+  dc_ip                 IP-адрес контроллера домена
 
 optional arguments:
   -h, --help            show this help message and exit
   -d DOMAIN, --domain DOMAIN
-                        Domain
+                        Домен
   -f USERSFILE, --usersfile USERSFILE
-                        File with users
+                        Файл с пользователями
   -u USERNAME, --username USERNAME
                         Username
   -c CREDENTIALS, --credentials CREDENTIALS
-                        Password or NT-hash
+                        Пароль или NT-hash
   -w WORDLIST, --wordlist WORDLIST
-                        Path to wordlist
+                        Путь к словарю (по умолчанию /usr/share/wordlists/rockyou.txt)
 ```
 ## Видео-демонстрация запуска скрипта
 ### seth

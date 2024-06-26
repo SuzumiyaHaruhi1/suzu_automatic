@@ -3,8 +3,9 @@
 - [x]  [SETH](https://github.com/SySS-Research/Seth) для проведения MITM атаки с перехватом аутентификации пользователя на удаленном RDP-сервере.
 - [x]  KYOCERA для проверки IP-адресов из заданной подсети на наличие открытого порта 9091 и извлечения аутентификационных данных из адресной книги.
 - [x]  [GOWITNESS](https://github.com/sensepost/gowitness?tab=readme-ov-file) для проверки IP-адресов из заданной подсети на наличие открытых портов 80, 443, 8000, 8080 и создания скриншотов.
-- [ ]  Kerberoasting для проведения атаки, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования)
-- [ ]  Asreproasting для проведения атаки, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования)
+- [ ]  KERBEROASTING для проведения атаки, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования).
+- [ ]  ASREPROASTING для проведения атаки, запуска брутфорса с заданным словарем и сохранения результата в БД (в процессе тестирования).
+- [x]  NMAP_CANVAS для скаинрования заданной подсети топ 10 портов tcp и udp и сохранения результата в формате canvas.
 ## Зависимости
 Перед запуском необходимо убедиться в наличии следующих библиотек:
 - `psutil`
@@ -12,10 +13,10 @@
 - `tabulate`
 - `colorama`
 - `lxml`
-
+- `nmap`
 Команда для установки.
 ```python
-pip install psutil scapy tabulate colorama lxml
+pip install psutil scapy tabulate colorama lxml python-nmap
 ```
 Также необходимо установить дополнительные модули, если они отсутствуют:
 ```bash
@@ -70,6 +71,10 @@ python3 suzu.py kerberoasting <dc_ip> -u <user> -c <password|nt_hash> -d <domain
 #### С файлом
 ```python
 python3 suzu.py asreproasting <dc_ip> -d <domain> -f <users_file> [-w <wordlist>]
+```
+### nmap canvas
+```python
+python3 suzu.py nmap_canvas -s <subnet>
 ```
 #### С пользователем
 ```python
@@ -187,6 +192,15 @@ optional arguments:
                         Пароль или NT-hash
   -w WORDLIST, --wordlist WORDLIST
                         Путь к словарю (по умолчанию /usr/share/wordlists/rockyou.txt)
+```
+### nmap_canvas
+```
+usage: suzu.py nmap_canvas [-h] -s SUBNET
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SUBNET, --subnet SUBNET
+                        Подсеть или одиночный IP-адрес для сканирования
 ```
 ## Видео-демонстрация запуска скрипта
 ### seth

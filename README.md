@@ -74,7 +74,7 @@ python3 suzu.py kerberoasting <dc_ip> -u <user> -c <password|nt_hash> -d <domain
 python3 suzu.py asreproasting <dc_ip> -d <domain> -f <users_file> [-w <wordlist>]
 ```
 ### nmap canvas
-Запускает nmap на ряд заданных портов tcp и udp. Можно поменять в коде
+Запускает nmap на ряд заданных портов tcp и udp. Можно поменять необходимые порты в коде `suzu_nmap_canvas.py`.
 ```python
 python3 suzu.py nmap_canvas -s <subnet>
 ```

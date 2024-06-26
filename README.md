@@ -75,6 +75,7 @@ python3 suzu.py asreproasting <dc_ip> -d <domain> -f <users_file> [-w <wordlist>
 ```
 ### nmap canvas
 Запускает nmap на ряд заданных портов tcp и udp. Можно поменять необходимые порты в коде `suzu_nmap_canvas.py`.
+Полный перечень портов с описанием сервисов модно найти [здесь](https://developer.donnoval.ru/ports/)
 ```python
 python3 suzu.py nmap_canvas -s <subnet>
 ```

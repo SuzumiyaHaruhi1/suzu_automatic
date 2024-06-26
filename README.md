@@ -14,6 +14,7 @@
 - `colorama`
 - `lxml`
 - `nmap`
+
 Команда для установки.
 ```python
 pip install psutil scapy tabulate colorama lxml python-nmap

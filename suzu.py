@@ -31,6 +31,9 @@ def run_asreproasting(dc_ip, domain, usersfile=None, username=None, credentials=
 
     subprocess.run(args)
 
+def run_nmap_canvas(subnet):
+    subprocess.run(['python3', 'suzu_nmap_canvas.py', '-s', subnet])
+
 def main():
     parser = argparse.ArgumentParser(description='Скрипт для автоматизации запуска различных модулей')
 
@@ -77,6 +80,10 @@ def main():
     parser_asreproasting.add_argument('-u', '--username', help="Имя пользователя")
     parser_asreproasting.add_argument('-c', '--credentials', help="Пароль или NT-hash")
     parser_asreproasting.add_argument('-w', '--wordlist', default="/usr/share/wordlists/rockyou.txt", help="Путь к словарю (по умолчанию: /usr/share/wordlists/rockyou.txt")
+
+    # Nmap Canvas parser
+    parser_nmap_canvas = subparsers.add_parser('nmap_canvas', help='Запуск модуля NmapCanvas')
+    parser_nmap_canvas.add_argument('-s', '--subnet', required=True, help="Подсеть или одиночный IP-адрес для сканирования")
 
     args = parser.parse_args()
 
@@ -127,6 +134,11 @@ def main():
             parser_asreproasting.print_help(sys.stderr)
         else:
             run_asreproasting(args.dc_ip, args.domain, args.usersfile, args.username, args.credentials, args.wordlist)
+    elif args.script == 'nmap_canvas':
+        if not args.subnet:
+            parser_nmap_canvas.print_help(sys.stderr)
+        else:
+            run_nmap_canvas(args.subnet)
 
 
 if __name__ == '__main__':

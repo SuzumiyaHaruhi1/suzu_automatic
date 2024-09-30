@@ -21,7 +21,7 @@ pip install psutil scapy tabulate colorama lxml python-nmap
 ```
 Также необходимо установить дополнительные модули, если они отсутствуют:
 ```bash
-go install github.com/sensepost/gowitness@latest
+sudo apt install gowitness
 ```
 ```bash
 pip install impacket

@@ -158,7 +158,7 @@ class Kyocera:
         for i in range(0, total_ips, 50):
             batch = valid_ips[i:i + 50]
             with ThreadPoolExecutor(max_workers=50) as executor:
-                futures = {executor.submit(subprocess.run, ['/home/suzu/go/bin/gowitness', 'scan', '--cidr', ip], capture_output=True): ip for ip in batch}
+                futures = {executor.submit(subprocess.run, ['/home/suzu/go/bin/gowitness', 'scan', 'cidr', '--cidr', ip], capture_output=True): ip for ip in batch}
                 for future in as_completed(futures):
                     ip = futures[future]
                     try:

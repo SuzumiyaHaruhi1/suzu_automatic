@@ -154,11 +154,16 @@ class Kyocera:
         """
         total_ips = len(valid_ips)
 
+        # Получаем путь к gowitness с помощью `which`
+        gowitness_path = subprocess.run(['which', 'gowitness'], capture_output=True, text=True).stdout.strip()
+        
         # Разбиваем IP-адреса на батчи по max_workers
         for i in range(0, total_ips, 50):
             batch = valid_ips[i:i + 50]
             with ThreadPoolExecutor(max_workers=50) as executor:
-                futures = {executor.submit(subprocess.run, ['/home/suzu/go/bin/gowitness', 'scan', 'cidr', '--cidr', ip], capture_output=True): ip for ip in batch}
+                # Используем динамически определенный путь к gowitness
+                futures = {executor.submit(subprocess.run, [gowitness_path, 'scan', 'cidr', '--cidr', ip], capture_output=True): ip for ip in batch}
+                
                 for future in as_completed(futures):
                     ip = futures[future]
                     try:

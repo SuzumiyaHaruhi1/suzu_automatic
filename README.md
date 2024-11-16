@@ -31,7 +31,7 @@ pip install impacket
 git clone https://github.com/SuzumiyaHaruhi1/suzu_automatic.git
 ```
 ```bash
-sudo chmod 755 suzu_automatic; cd suzu_automatic; chmod +x seth.sh; chmod 777 *
+sudo chmod 755 suzu_automatic; cd suzu_automatic; chmod +x seth.sh
 ```
 ## Использование
 Скрипт поддерживает несколько команд для различных задач. При запуске некоторых модулей происходит проверка прав пользователя и если запуск производится не от root, требуется ввести пароль.

@@ -1,0 +1,3 @@
+#!/home/suzu/suzu_automatic/venv/bin/python3
+import ldapdomaindump
+ldapdomaindump.main()

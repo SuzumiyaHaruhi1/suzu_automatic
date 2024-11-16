@@ -165,6 +165,24 @@ class PrintNightmareModule:
         subprocess.run(command)
 
 
+class SSHModule:
+    """Класс для управления модулем SSH."""
+
+    def __init__(self, subnet, credentials_file=None, users_file=None, passwords_file=None):
+        self.subnet = subnet
+        self.credentials_file = credentials_file
+        self.users_file = users_file
+        self.passwords_file = passwords_file
+
+    def run(self):
+        """Запуск модуля SSH."""
+        command = ['python3', 'ssh.py', '-s', self.subnet]
+        if self.credentials_file:
+            command.extend(['-f', self.credentials_file])
+        if self.users_file and self.passwords_file:
+            command.extend(['-u', self.users_file, '-p', self.passwords_file])
+        subprocess.run(command)
+
 # ====================================================================
 # Основная функция
 # ====================================================================
@@ -237,6 +255,13 @@ def main():
     action_group.add_argument('-check', action='store_true', help='Проверка наличия уязвимости')
     action_group.add_argument('-exploit', action='store_true', help='Эксплуатация уязвимости')
 
+    # SSH parser
+    parser_ssh = subparsers.add_parser('ssh', help='Запуск модуля SSH')
+    parser_ssh.add_argument('-s', '--subnet', required=True, help="Подсеть для сканирования.")
+    parser_ssh.add_argument('-f', '--credentials_file', help="Файл с парами username:password.")
+    parser_ssh.add_argument('-u', '--users_file', help="Файл с логинами.")
+    parser_ssh.add_argument('-p', '--passwords_file', help="Файл с паролями.")
+
     args = parser.parse_args()
 
     if args.script == 'kyocera':
@@ -270,6 +295,8 @@ def main():
             new_username=args.new_username,
             new_password=args.new_password
         ).run()
+    elif args.script == 'ssh':
+        SSHModule(args.subnet, args.credentials_file, args.users_file, args.passwords_file).run()
 
 if __name__ == '__main__':
     main()

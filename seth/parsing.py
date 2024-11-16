@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from binascii import hexlify, unhexlify
 
 import re

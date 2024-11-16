@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Viewer</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        .editable {
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+        
+        .disabled {
+            background-color: #e0e0e0;
+            pointer-events: none;
+        }
+
+        /* Основные настройки для темной темы */
+        body {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Левое меню */
+        #table-list {
+            width: 200px;
+            padding: 20px;
+            background-color: #2c2c2c;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            border-right: 1px solid #444;
+        }
+
+        #table-list h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        #table-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #table-list li {
+            margin-bottom: 10px;
+        }
+
+        #table-list a {
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #table-list a:hover {
+            background-color: #575757;
+        }
+
+        /* Основной контейнер для таблиц */
+        #table-container {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #1e1e1e;
+        }
+
+        /* Заголовок таблицы */
+        #table-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            color: #f5a623;
+        }
+
+        /* Поля для выбора дат и кнопки */
+        #date-filters {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        #date-filters label {
+            margin-right: 10px;
+            font-size: 1rem;
+            color: #f5a623;
+        }
+
+        #date-filters input {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding: 5px;
+            border-radius: 5px;
+            margin-right: 10px;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        #date-filters input:focus {
+            border-color: #f5a623;
+        }
+
+        #date-filters button {
+            padding: 10px 20px;
+            background-color: #f5a623;
+            color: #1e1e1e;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+        }
+
+        #date-filters button:hover {
+            background-color: #ffa723;
+        }
+        
+        /* Стили для элементов управления таблицей */
+        .dataTables_length label, 
+        .dataTables_filter label {
+            color: #f5a623;  /* Тёмно-жёлтый цвет */
+        }
+
+        /* Стили для выпадающего списка (10, 25, 50) */
+        .dataTables_length select {
+            background-color: #2c2c2c;  /* Тёмный фон */
+            color: #e0e0e0;  /* Светлый текст */
+            border: 1px solid #555;  /* Граница */
+            padding: 5px;
+            border-radius: 5px;
+            outline: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Цвет при наведении на выпадающий список */
+        .dataTables_length select:hover {
+            background-color: #444;  /* Более светлый тёмный фон при наведении */
+            color: #f5a623;  /* Тёмно-жёлтый цвет текста при наведении */
+        }
+
+        /* Стили для поля поиска */
+        .dataTables_filter input {
+            background-color: #2c2c2c;  /* Тёмный фон */
+            color: #d3d3d3;  /* Светло-серый текст */
+            border: 1px solid #555;  /* Граница */
+            padding: 5px;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        /* Цвет границы при фокусе на поле поиска */
+        .dataTables_filter input:focus {
+            border-color: #f5a623;  /* Тёмно-жёлтая граница при фокусе */
+        }
+
+        /* Настройка таблицы */
+        table.dataTable {
+            background-color: #2c2c2c;
+            color: #2c2c2c;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.dataTable th, table.dataTable td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #444;
+        }
+
+        table.dataTable th {
+            background-color: #333;
+            color: #f5a623;
+            border-bottom: 2px solid #555;
+        }
+
+        table.dataTable tr:hover {
+            background-color: #d41919;
+            color: rgb(0, 0, 0);
+        }
+
+        /* Изменение фона и цвета текста при наведении на строку */
+        table.dataTable tbody tr:hover {
+            background-color: #dfdfdf !important;  /* Обязательно используйте !important для переопределения стилей DataTables */
+        }
+
+        /* Изменение цвета текста в ячейках таблицы при наведении */
+        table.dataTable tbody tr:hover td {
+            color: rgb(0, 0, 0) !important;  /* Обязательно используйте !important */
+        }
+
+        /* Стили для всех кнопок пагинации */
+        .dataTables_paginate .paginate_button {
+            background-color: #949494 !important;  /* Немного светлее */
+            color: #d4d4d4 !important;  /* Светлый текст */
+            border: 1px solid #555;  /* Обводка */
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 3px;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Стили для неактивных кнопок пагинации (Previous, Next) */
+        .dataTables_paginate .paginate_button.disabled {
+            /* background-color: #994040 !important; Светло-серый для отключённых кнопок */
+            background-color: #1e1e1e !important;
+            color: #aa1717;  /* Светло-серый текст для неактивных кнопок */
+            border: 1px solid #555;  /* Обводка для disabled кнопок */
+            cursor: not-allowed;  /* Указатель меняется на запрет */
+        }
+
+        /* Цвет при наведении на кнопки пагинации */
+        .dataTables_paginate .paginate_button:hover {
+            background-color: #86dbc2;  /* Осветляем фон при наведении */
+            color: #f5a623;  /* Тёмно-жёлтый текст при наведении */
+            border-color: #f5a623;  /* Обводка также становится жёлтой */
+        }
+
+        /* Стили для неактивных кнопок пагинации (Previous, Next) */
+        .dataTables_paginate .paginate_button.disabled:hover {
+            /* background-color: #994040 !important; Светло-серый для отключённых кнопок */
+            background-color: #1e1e1e !important;
+        }
+
+        /* Стили для активной кнопки пагинации (выбранной страницы) */
+        .dataTables_paginate .paginate_button.current {
+            background-color: #f5a623;  /* Жёлтый фон */
+            color: #ff0000;  /* Тёмный текст */
+            border-color: #f5a623;  /* Жёлтая обводка */
+        }
+
+        /* Плавная анимация для ссылок */
+        a {
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #f5a623;
+        }
+    </style>
+</head>
+<body>
+    <div id="table-list">
+        <h3>Tables</h3>
+        <ul>
+            {% for table in tables %}
+            <li><a href="#" onclick="loadTable('{{ table }}')">{{ table }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="table-container">
+        <h3 id="table-title">Select a table</h3>
+        <div id="date-filters">
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date">
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date">
+            <button onclick="filterByDateRange()">Filter by Date Range</button>
+        </div>
+        <table id="data-table" class="display" style="width:100%;"></table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script>
+        let currentTable = '';
+
+        function loadTable(table_name) {
+            // Обновляем название текущей таблицы
+            currentTable = table_name;
+            $('#table-title').text(table_name);
+
+            // Уничтожаем старую таблицу и очищаем структуру таблицы
+            if ($.fn.DataTable.isDataTable('#data-table')) {
+                $('#data-table').DataTable().clear().destroy();  // Уничтожаем старую таблицу
+                $('#data-table').empty();  // Очищаем HTML-структуру
+                $('#data-table').append('<thead><tr></tr></thead>');  // Добавляем пустой заголовок для последующей инициализации
+            }
+
+            // Загружаем данные с помощью AJAX-запроса
+            $.ajax({
+                url: `/table/${table_name}`,
+                type: 'GET',
+                cache: false,  // Отключаем кэш
+                success: function(data) {
+                    const columns = data.columns.map(function(col) {
+                        if (col === 'id') {
+                            return { title: col, visible: false };  // Скрываем столбец id
+                        }
+                    });
+
+                    // Инициализируем новую таблицу с новыми данными
+                    $('#data-table').DataTable({
+                        data: data.data,
+                        columns: columns,
+                        destroy: true,
+                        searching: true,
+                        ordering: true
+                    });
+                }
+            });
+        }
+
+        function filterByDateRange() {
+            const startDate = $('#start-date').val();
+            const endDate = $('#end-date').val();
+            if (currentTable) {
+                let url = `/table/${currentTable}?`;
+                if (startDate) {
+                    url += `start_date=${startDate}&`;
+                }
+                if (endDate) {
+                    url += `end_date=${endDate}`;
+                }
+
+                // Очищаем таблицу перед фильтрацией
+                if ($.fn.DataTable.isDataTable('#data-table')) {
+                    $('#data-table').DataTable().clear().destroy();
+                    $('#data-table').empty();
+                    $('#data-table').append('<thead><tr></tr></thead>');
+                }
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    cache: false,  // Отключаем кэш
+                    success: function(data) {
+                        const columns = data.columns.map(function(col) {
+                            if (col === 'id') {
+                                return { title: col, visible: false };  // Скрываем столбец id
+                            } else {
+                                return { title: col };
+                            }
+                        });
+
+                        $('#data-table').DataTable({
+                            data: data.data,
+                            columns: columns,
+                            destroy: true,
+                            searching: true,
+                            ordering: true
+                        });
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,48 +1,186 @@
+#!/usr/bin/python3
+
+"""
+Скрипт для автоматизации запуска различных модулей:
+- kyocera: управление и извлечение данных из устройств Kyocera
+- gowitness: автоматизированное создание снимков веб-сайтов
+- seth: MITM атака на множественные узлы в подсети с использованием RDP
+- kerberoasting: извлечение Kerberos хэшей для дальнейшего анализа
+- asreproasting: получение хэшей для AS-REQ атак на пользователей
+- nmap_canvas: сканирование сети с визуализацией результатов
+- printnightmare: эксплуатация уязвимости PrintNightmare
+- web: запуск локального веб-сервера для взаимодействия с данными
+
+Авторы: @suzu
+"""
+
+# ====================================================================
+# Импорты
+# ====================================================================
+
 import argparse
 import subprocess
 import sys
+import warnings
+from colorama import init
 
-def run_kyocera(interface, subnet):
-    subprocess.run(['python3', 'suzu_kyocera.py', '-i', interface, '-s', subnet])
+# ====================================================================
+# Настройка цветового вывода и подавления предупреждений
+# ====================================================================
 
-def run_gowitness(interface, subnet):
-    subprocess.run(['python3', 'suzu_gowitness.py', '-i', interface, '-s', subnet])
+init(autoreset=True)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
-def run_seth(command, interface=None, subnet=None, server=None, ip_address=None):
-    if command == 'mitm':
-        subprocess.run(['python3', 'suzu_seth.py', 'mitm', '-i', interface, '-s', subnet, '-r', server])
-    elif command == 'show':
+
+
+# ====================================================================
+# Классы модулей
+# ====================================================================
+
+class KyoceraModule:
+    """Класс для управления модулем Kyocera."""
+
+    def __init__(self, interface=None, subnet=None):
+        self.interface = interface
+        self.subnet = subnet
+
+    def show(self):
+        subprocess.run(['python3', 'kyocera.py', 'show'])
+
+    def clear(self):
+        subprocess.run(['python3', 'kyocera.py', 'clear'])
+
+    def scan(self):
+        if self.interface and self.subnet:
+            subprocess.run(['python3', 'kyocera.py', 'scan', '-i', self.interface, '-s', self.subnet])
+
+
+class GoWitnessModule:
+    """Класс для управления модулем GoWitness."""
+
+    def __init__(self, interface, subnet):
+        self.interface = interface
+        self.subnet = subnet
+
+    def run(self):
+        subprocess.run(['python3', 'gowitness.py', '-i', self.interface, '-s', self.subnet])
+
+
+class SethModule:
+    """Класс для управления модулем SETH для MITM-атак."""
+
+    def __init__(self, interface=None, subnet=None, server=None):
+        self.interface = interface
+        self.subnet = subnet
+        self.server = server
+
+    def mitm(self):
+        if self.interface and self.subnet and self.server:
+            subprocess.run(['python3', 'suzu_seth.py', 'mitm', '-i', self.interface, '-s', self.subnet, '-r', self.server])
+
+    def show(self):
         subprocess.run(['python3', 'suzu_seth.py', 'show'])
-    elif command == 'clear':
+
+    def clear(self):
         subprocess.run(['python3', 'suzu_seth.py', 'clear'])
-    elif command == 'remove':
-        subprocess.run(['python3', 'suzu_seth.py', 'remove', ip_address])
 
-def run_kerberoasting(ip, username, credentials, domain, wordlist):
-    subprocess.run(['python3', 'suzu_kerberoasting.py', ip, '-u', username, '-c', credentials, '-d', domain, '-w', wordlist])
 
-def run_asreproasting(dc_ip, domain, usersfile=None, username=None, credentials=None, wordlist="/usr/share/wordlists/rockyou.txt"):
-    args = ['python3', 'suzu_asreproasting.py', dc_ip, '-d', domain, '-w', wordlist]
+class KerberoastingModule:
+    """Класс для управления модулем Kerberoasting."""
 
-    if usersfile:
-        args.extend(['-f', usersfile])
-    elif username and credentials:
-        args.extend(['-u', username, '-c', credentials])
+    def __init__(self, ip, username, credentials, domain, wordlist='/usr/share/wordlists/rockyou.txt'):
+        self.ip = ip
+        self.username = username
+        self.credentials = credentials
+        self.domain = domain
+        self.wordlist = wordlist
 
-    subprocess.run(args)
+    def run(self):
+        subprocess.run(['python3', 'kerberoasting.py', self.ip, '-u', self.username, '-c', self.credentials, '-d', self.domain, '-w', self.wordlist])
 
-def run_nmap_canvas(subnet):
-    subprocess.run(['python3', 'suzu_nmap_canvas.py', '-s', subnet])
+
+class AsreproastingModule:
+    """Класс для управления модулем Asreproasting."""
+
+    def __init__(self, dc_ip, domain, usersfile=None, username=None, credentials=None, wordlist='/usr/share/wordlists/rockyou.txt'):
+        self.dc_ip = dc_ip
+        self.domain = domain
+        self.usersfile = usersfile
+        self.username = username
+        self.credentials = credentials
+        self.wordlist = wordlist
+
+    def run(self):
+        args = ['python3', 'asreproasting.py', self.dc_ip, '-d', self.domain, '-w', self.wordlist]
+        if self.usersfile:
+            args.extend(['-f', self.usersfile])
+        elif self.username and self.credentials:
+            args.extend(['-u', self.username, '-c', self.credentials])
+        subprocess.run(args)
+
+
+class NmapCanvasModule:
+    """Класс для управления модулем Nmap Canvas."""
+
+    def __init__(self, subnet):
+        self.subnet = subnet
+
+    def run(self):
+        subprocess.run(['python3', 'nmap_canvas.py', '-s', self.subnet])
+
+
+class WebModule:
+    """Класс для управления запуском веб-сервера."""
+
+    @staticmethod
+    def run():
+        subprocess.run(['python3', 'web.py'])
+
+
+class PrintNightmareModule:
+    """Класс для управления модулем PrintNightmare."""
+
+    def __init__(self, subnet, username, credentials, action, interface=None, new_username=None, new_password=None):
+        self.subnet = subnet
+        self.username = username
+        self.credentials = credentials
+        self.action = action
+        self.interface = interface
+        self.new_username = new_username
+        self.new_password = new_password
+
+    def run(self):
+        command = ['python3', 'printnightmare.py', '-s', self.subnet, '-u', self.username, '-c', self.credentials]
+        command.append('-check' if self.action == 'check' else '-exploit')
+
+        # Добавляем дополнительные параметры, если они указаны
+        if self.interface:
+            command.extend(['-i', self.interface])
+        if self.new_username:
+            command.extend(['-new-username', self.new_username])
+        if self.new_password:
+            command.extend(['-new-password', self.new_password])
+
+        subprocess.run(command)
+
+
+# ====================================================================
+# Основная функция
+# ====================================================================
 
 def main():
     parser = argparse.ArgumentParser(description='Скрипт для автоматизации запуска различных модулей')
-
     subparsers = parser.add_subparsers(dest='script', help='Выбор модуля для запуска')
 
     # Kyocera parser
     parser_kyocera = subparsers.add_parser('kyocera', help='Запуск модуля KYOCERA')
-    parser_kyocera.add_argument('-i', '--interface', required=True, help='Сетевой интерфейс')
-    parser_kyocera.add_argument('-s', '--subnet', required=True, help='Подсеть или одиночный IP-адрес для сканирования')
+    kyocera_subparsers = parser_kyocera.add_subparsers(dest='command', help='Доступные команды')
+    kyocera_subparsers.add_parser('show', help='Показать содержимое таблицы kyocera')
+    kyocera_subparsers.add_parser('clear', help='Очистить содержимое таблицы kyocera')
+    scan_parser = kyocera_subparsers.add_parser('scan', help='Сканирование подсети и извлечение данных')
+    scan_parser.add_argument('-i', '--interface', required=True, help='Сетевой интерфейс')
+    scan_parser.add_argument('-s', '--subnet', required=True, help='Подсеть или одиночный IP-адрес для сканирования')
 
     # GoWitness parser
     parser_gowitness = subparsers.add_parser('gowitness', help='Запуск модуля GOWITNESS')
@@ -50,19 +188,14 @@ def main():
     parser_gowitness.add_argument('-s', '--subnet', required=True, help='Подсеть или одиночный IP-адрес для сканирования')
 
     # SETH parser
-    parser_seth = subparsers.add_parser('seth', help='Запуск модуля SETH')
+    parser_seth = subparsers.add_parser('seth', help='Запуск модуля SETH для MITM-атак')
     seth_subparsers = parser_seth.add_subparsers(dest='command', help='Доступные команды')
-
-    mitm_parser = seth_subparsers.add_parser('mitm', help='Прослушивание сетевого интерфейса')
+    seth_subparsers.add_parser('show', help='Вывод всех паролей')
+    seth_subparsers.add_parser('clear', help='Очистка базы данных')
+    mitm_parser = seth_subparsers.add_parser('mitm', help='MITM атака на множественные узлы в подсети')
     mitm_parser.add_argument('-i', '--interface', required=True, help="Сетевой интерфейс")
     mitm_parser.add_argument('-s', '--subnet', required=True, help="Подсеть или одиночный IP-адрес для прослушивания")
     mitm_parser.add_argument('-r', '--server', required=True, help="RDP сервер")
-
-    seth_subparsers.add_parser('show', help='Вывод всех паролей')
-    seth_subparsers.add_parser('clear', help='Очистка базы данных')
-
-    remove_parser = seth_subparsers.add_parser('remove', help='Удаление заданного IP-адреса')
-    remove_parser.add_argument('ip', help="IP-адрес для удаления")
 
     # Kerberoasting parser
     parser_kerberoasting = subparsers.add_parser('kerberoasting', help='Запуск модуля KERBEROASTING')
@@ -70,7 +203,7 @@ def main():
     parser_kerberoasting.add_argument('-u', '--username', required=True, help="Имя пользователя")
     parser_kerberoasting.add_argument('-c', '--credentials', required=True, help="Пароль или NT-hash")
     parser_kerberoasting.add_argument('-d', '--domain', required=True, help="Домен")
-    parser_kerberoasting.add_argument('-w', '--wordlist', default='/usr/share/wordlists/rockyou.txt', help="Путь к словарю (по умолчанию: /usr/share/wordlists/rockyou.txt")
+    parser_kerberoasting.add_argument('-w', '--wordlist', default='/usr/share/wordlists/rockyou.txt', help="Путь к словарю")
 
     # Asreproasting parser
     parser_asreproasting = subparsers.add_parser('asreproasting', help='Запуск модуля ASREPROASTING')
@@ -79,67 +212,64 @@ def main():
     parser_asreproasting.add_argument('-f', '--usersfile', help="Файл с пользователями")
     parser_asreproasting.add_argument('-u', '--username', help="Имя пользователя")
     parser_asreproasting.add_argument('-c', '--credentials', help="Пароль или NT-hash")
-    parser_asreproasting.add_argument('-w', '--wordlist', default="/usr/share/wordlists/rockyou.txt", help="Путь к словарю (по умолчанию: /usr/share/wordlists/rockyou.txt")
+    parser_asreproasting.add_argument('-w', '--wordlist', default="/usr/share/wordlists/rockyou.txt", help="Путь к словарю")
 
     # Nmap Canvas parser
     parser_nmap_canvas = subparsers.add_parser('nmap_canvas', help='Запуск модуля NmapCanvas')
     parser_nmap_canvas.add_argument('-s', '--subnet', required=True, help="Подсеть или одиночный IP-адрес для сканирования")
 
+    # Web Server parser
+    subparsers.add_parser('web', help='Запуск локального веб-сервера')
+
+    # PrintNightmare parser
+    parser_printnightmare = subparsers.add_parser('printnightmare', help='Запуск модуля PrintNightmare')
+    parser_printnightmare.add_argument('-s', '--subnet', required=True, help='IP-адрес или подсеть для сканирования')
+    parser_printnightmare.add_argument('-u', '--username', required=True, help='Имя пользователя для аутентификации')
+    parser_printnightmare.add_argument('-c', '--credentials', required=True, help='Пароль или NT-хэш для аутентификации')
+
+    # Дополнительные аргументы для эксплуатации
+    parser_printnightmare.add_argument('-i', '--interface', help='Сетевой интерфейс (только для exploit)')
+    parser_printnightmare.add_argument('-new-username', help='Имя нового пользователя для эксплуатации (только для exploit)')
+    parser_printnightmare.add_argument('-new-password', help='Пароль нового пользователя для эксплуатации (только для exploit)')
+
+    # Группа действий: проверка или эксплуатация
+    action_group = parser_printnightmare.add_mutually_exclusive_group(required=True)
+    action_group.add_argument('-check', action='store_true', help='Проверка наличия уязвимости')
+    action_group.add_argument('-exploit', action='store_true', help='Эксплуатация уязвимости')
+
     args = parser.parse_args()
 
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
     if args.script == 'kyocera':
-        if not args.interface or not args.subnet:
-            parser_kyocera.print_help(sys.stderr)
-        else:
-            run_kyocera(args.interface, args.subnet)
+        module = KyoceraModule(args.interface, args.subnet)
+        getattr(module, args.command)()
     elif args.script == 'gowitness':
-        if not args.interface or not args.subnet:
-            parser_gowitness.print_help(sys.stderr)
-        else:
-            run_gowitness(args.interface, args.subnet)
+        GoWitnessModule(args.interface, args.subnet).run()
     elif args.script == 'seth':
-        if args.command is None:
-            parser_seth.print_help(sys.stderr)
-        elif args.command == 'mitm':
-            if not args.interface or not args.subnet or not args.server:
-                mitm_parser.print_help(sys.stderr)
-            else:
-                run_seth(args.command, args.interface, args.subnet, args.server)
-        elif args.command == 'show':
-            run_seth(args.command)
+        if args.command == 'mitm':
+            module = SethModule(args.interface, args.subnet, args.server)
+            getattr(module, args.command)()
         elif args.command == 'clear':
-            run_seth(args.command)
-        elif args.command == 'remove':
-            if not args.ip:
-                remove_parser.print_help(sys.stderr)
-            else:
-                run_seth(args.command, ip_address=args.ip)
+            module = SethModule()
+            getattr(module, args.command)()
+        elif args.command == 'show':
+            module = SethModule()
+            getattr(module, args.command)()
     elif args.script == 'kerberoasting':
-        if not args.ip or not args.username or not args.credentials or not args.domain:
-            parser_kerberoasting.print_help(sys.stderr)
-        else:
-            run_kerberoasting(args.ip, args.username, args.credentials, args.domain, args.wordlist)
+        KerberoastingModule(args.ip, args.username, args.credentials, args.domain, args.wordlist).run()
     elif args.script == 'asreproasting':
-        if args.username or args.credentials:
-            if args.usersfile:
-                parser_asreproasting.error("-f/--usersfile нельзя использовать с -u/--username или -c/--credentials")
-            elif not (args.username and args.credentials):
-                parser_asreproasting.error("-u/--username и -c/--credentials должны быть использованы вместе")
-
-        if not args.dc_ip or not args.domain:
-            parser_asreproasting.print_help(sys.stderr)
-        else:
-            run_asreproasting(args.dc_ip, args.domain, args.usersfile, args.username, args.credentials, args.wordlist)
+        AsreproastingModule(args.dc_ip, args.domain, args.usersfile, args.username, args.credentials, args.wordlist).run()
     elif args.script == 'nmap_canvas':
-        if not args.subnet:
-            parser_nmap_canvas.print_help(sys.stderr)
-        else:
-            run_nmap_canvas(args.subnet)
-
+        NmapCanvasModule(args.subnet).run()
+    elif args.script == 'web':
+        WebModule.run()
+    elif args.script == 'printnightmare':
+        action = 'check' if args.check else 'exploit'
+        PrintNightmareModule(
+            args.subnet, args.username, args.credentials, action,
+            interface=args.interface,
+            new_username=args.new_username,
+            new_password=args.new_password
+        ).run()
 
 if __name__ == '__main__':
     main()

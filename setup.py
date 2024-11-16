@@ -19,6 +19,7 @@ setup(
         "scapy==2.5.0",
         "tabulate==0.9.0",
         "urllib3==2.2.3",
+        "python-nmap==0.7.1",
     ],
     entry_points={
         "console_scripts": [

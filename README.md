@@ -8,32 +8,12 @@
 - [x] NMAP_CANVAS для скаинрования заданной подсети топ 10 портов tcp и udp и сохранения результата в формате canvas.
 - [x] SSH для перебора паролей на диапазон.
 - [x] PRINTNIGHTMARE модуль для сканирования уязвимости PrintNightmare, а также ее эксплуатации. Имеется возможность добаления нового пользователя с паролем с помощью флагов.
-## Зависимости
-Перед запуском необходимо убедиться в наличии следующих библиотек:
-- `psutil`
-- `scapy`
-- `tabulate`
-- `colorama`
-- `lxml`
-- `nmap`
-
-Команда для установки.
-```python
-pip install psutil scapy tabulate colorama lxml python-nmap
-```
-Также необходимо установить дополнительные модули, если они отсутствуют:
-```bash
-sudo apt install gowitness
-```
-```bash
-pip install impacket
-```
 ## Установка
 ```bash
 git clone https://github.com/SuzumiyaHaruhi1/suzu_automatic.git
 ```
 ```bash
-sudo chmod 755 suzu_automatic; cd suzu_automatic; chmod +x seth.sh
+sudo chmod 755 suzu_automatic; cd suzu_automatic; chmod +x seth.sh; python3 -m venv venv; source venv/bin/activate; pip install .; sudo apt install gowitness
 ```
 ## HELP menu
 ```

@@ -1,3 +1,0 @@
-#!/home/suzu/suzu_automatic/venv/bin/python3
-from ldapdomaindump import convert
-convert.ldd2bloodhound()

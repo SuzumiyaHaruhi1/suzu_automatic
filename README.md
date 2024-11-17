@@ -13,7 +13,7 @@
 git clone https://github.com/SuzumiyaHaruhi1/suzu_automatic.git
 ```
 ```bash
-sudo chmod 755 suzu_automatic; cd suzu_automatic; chmod +x seth.sh; python3 -m venv venv; source venv/bin/activate; pip install .; sudo apt install gowitness
+sudo chmod 755 suzu_automatic; cd suzu_automatic; sudo chmod -R 777 .; sudo rm -r venv; python3 -m venv venv; source venv/bin/activate; sudo apt update; sudo apt-get install python3-dev libxml2-dev libxslt-dev gowitness; pip install -r requirements.txt; sudo pip install . --ignore-installed --break-system-packages
 ```
 ## HELP menu
 ```

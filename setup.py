@@ -12,7 +12,7 @@ setup(
         "Flask==3.1.0",
         "hexdump==3.3",
         "impacket==0.11.0",
-        "lxml==4.6.3",
+        "lxml==5.3.0",
         "paramiko==3.4.0",
         "psutil==5.8.0",
         "requests==2.31.0",

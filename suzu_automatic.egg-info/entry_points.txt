@@ -1,3 +1,0 @@
-[console_scripts]
-suzu = suzu_automatic.suzu:main
-
